@@ -17,7 +17,10 @@ In composer.json:
 ```
 
 ## Usage
-
+Include Composer’s autoloader
+```
+require 'vendor/autoload.php';
+```
 Get events from the next 7 days:
 ```
 $f = new Fastical('events.ics');
