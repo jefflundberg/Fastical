@@ -1,5 +1,5 @@
 {
-	"name": "jefflundberg/Fastical",
+	"name": "jefflundberg/fastical",
 	"description": "A fast PHP ical parser for vevents, based on msquare/Fastical",
 	"keywords": ["ical", "ics", "parse", "calendar", "vevents"],
 	"homepage": "https://github.com/jefflundberg/Fastical",
