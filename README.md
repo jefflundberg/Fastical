@@ -11,7 +11,7 @@ In composer.json:
 ```
 {
     "require": {
-        "jefflundberg/Fastical": "dev-master"
+        "jefflundberg/fastical": "dev-master"
     }
 }
 ```
