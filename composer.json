@@ -19,7 +19,6 @@
 		}
 	],
 	"require": {
-		"php": ">=5.5.0",
 		"simshaun/recurr": "*@dev"
 	},
 	"autoload": {
