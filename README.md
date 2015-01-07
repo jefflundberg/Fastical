@@ -7,10 +7,15 @@ A fast PHP ical parser for vevents.
  * Composer
 
 ## Setup
- * `git submodule init`
- * `git submodule update`
- * In `simshaun_recurr` do `composer install`
- 
+In composer.json:
+```
+{
+    "require": {
+        "jefflundberg/Fastical": "dev-master"
+    }
+}
+```
+
 ## Usage
 
 Get events from the next 7 days:
