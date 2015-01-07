@@ -8,6 +8,10 @@
  * @todo EXRULE
  * @todo Timezones
  */
+
+namespace Fastical;
+use Recurr;
+
 class Fastical {
 
   var $timezone = null;
@@ -21,22 +25,21 @@ class Fastical {
   function __construct($ics_file) {
     if (! file_exists($ics_file))
       throw new Exception("File not found.");
-    
+
     $this->ics_file = $ics_file;
   }
 
   function getEvents($start, $end) {
     if ($start > $end)
       throw new Exception("Start has to be before end.");
-    
+
     $fd = @fopen($this->ics_file, 'r');
     if ($fd == null)
       throw new Exception("Unable to open ics file.");
-    
-    require_once 'simshaun_recurr/vendor/autoload.php';
+
     $this->timezone = new \DateTimeZone('Europe/Berlin');
     $this->transformer = new \Recurr\Transformer\ArrayTransformer();
-    
+
     $events = array();
     while (($buffer = fgets($fd)) !== false) {
       if (rtrim($buffer) == 'BEGIN:VCALENDAR') {
@@ -44,14 +47,14 @@ class Fastical {
         break;
       }
     }
-    
+
     if ($fd != null)
       fclose($fd);
-    
+
     usort($events, function ($a, $b) {
       return $a['start'] > $b['start'];
     });
-    
+
     return $events;
   }
 
@@ -68,13 +71,13 @@ class Fastical {
         $params[$param_key] = $param_value;
       }
     }
-    
+
     return array(
         'key' => $key,
         'value' => array(
             'value' => $value,
-            'params' => $params 
-        ) 
+            'params' => $params
+        )
     );
   }
 
@@ -84,10 +87,10 @@ class Fastical {
     while (($buffer = fgets($fd)) !== false) {
       if (rtrim($buffer) == 'BEGIN:VALARM')
         $this->parseVAlarm($fd, $start, $end);
-      
+
       if (rtrim($buffer) == 'END:VEVENT')
         break;
-      
+
       if (substr($buffer, 0, 1) == ' ')
         $line .= substr(rtrim($buffer), 1);
       else {
@@ -99,115 +102,115 @@ class Fastical {
         $line = rtrim($buffer);
       }
     }
-    
+
     return $this->validateVEvent($event, $start, $end);
   }
 
   private function validateVEvent($event, $start, $end) {
     $events = array();
     $override_events = array();
-    
+
     $uid = null;
     if (isset($event['UID']))
       $uid = $event['UID']['value'];
-    
+
     $dtstart = null;
     if (isset($event['DTSTART']))
       $dtstart = strtotime($event['DTSTART']['value']);
-    
+
     $dtend = null;
     if (isset($event['DTEND']))
       $dtend = strtotime($event['DTEND']['value']);
-    
+
     if (isset($event['DURATION']))
       $dtend = $dtstart + $this->decodeDuration($event['DURATION']['value']);
-    
+
     $summary = null;
     if (isset($event['SUMMARY']))
       $summary = $event['SUMMARY']['value'];
-    
+
     $location = null;
     if (isset($event['LOCATION']))
       $location = $event['LOCATION']['value'];
-    
+
     if (isset($event['RRULE'])) {
       $exdates = array();
       if (isset($event['EXDATE']))
         foreach (explode(',', $event['EXDATE']['value']) as $exdate)
           $exdates[] = strtotime($exdate);
-      
+
       if ($dtend == null)
         $rule = new \Recurr\Rule($event['RRULE']['value'], \DateTime::createFromFormat('U', $dtstart, $this->timezone), null, 'Europe/Berlin');
       else
         $rule = new \Recurr\Rule($event['RRULE']['value'], \DateTime::createFromFormat('U', $dtstart, $this->timezone), \DateTime::createFromFormat('U', $dtend, $this->timezone), 'Europe/Berlin');
-      
+
       $this->constraint = new \Recurr\Transformer\Constraint\BetweenConstraint(\DateTime::createFromFormat('U', $start - ($dtend - $dtstart), $this->timezone), \DateTime::createFromFormat('U', $end + ($dtend - $dtstart), $this->timezone), true);
-      
+
       foreach ($this->transformer->transform($rule, null, $this->constraint)->getValues() as $recurrance) {
         $dtstart = $recurrance->getStart()->getTimestamp();
         $dtend = $recurrance->getEnd()->getTimestamp();
-        
+
         if (in_array($dtstart, $exdates))
           continue;
-        
+
         $events[] = array(
             'start' => $dtstart,
             'end' => $dtend,
             'summary' => $summary,
             'location' => $location,
-            'uid' => $uid 
+            'uid' => $uid
         );
       }
     } else {
       if (isset($event['RECURRENCE-ID'])) {
         $override_start = strtotime($event['RECURRENCE-ID']['value']);
         $override_end = $override_start + ($dtend - $dtstart);
-        
+
         if ($override_start > $end && $dtstart > $end)
           return array(
               $events,
-              $override_events 
+              $override_events
           );
-        
+
         if ($override_end < $start && $dtend < $start)
           return array(
               $events,
-              $override_events 
+              $override_events
           );
-        
+
         $override_events[] = array(
             'override_start' => $override_start,
             'start' => $dtstart,
             'end' => $dtend,
             'summary' => $summary,
             'location' => $location,
-            'uid' => $uid 
+            'uid' => $uid
         );
       } else {
         if ($dtstart > $end)
           return array(
               $events,
-              $override_events 
+              $override_events
           );
         if ($dtend < $start)
           return array(
               $events,
-              $override_events 
+              $override_events
           );
-        
+
         $events[] = array(
             'start' => $dtstart,
             'end' => $dtend,
             'summary' => $summary,
             'location' => $location,
-            'uid' => $uid 
+            'uid' => $uid
         );
       }
     }
-    
+
     return array(
         $events,
-        $override_events 
+        $override_events
     );
   }
 
@@ -243,7 +246,7 @@ class Fastical {
           foreach ($new_override_events as $event)
             array_push($override_events, $event);
           break;
-        
+
         case 'END:VCALENDAR':
           return $this->mergeEvents($events, $override_events, $start, $end);
       }
@@ -264,7 +267,7 @@ class Fastical {
       if (isset($matches[6]))
         $d += $matches[6] * 60;
     }
-    
+
     return $d;
   }
 }
