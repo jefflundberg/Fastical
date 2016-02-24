@@ -129,6 +129,10 @@ class Fastical {
         if (isset($event['SUMMARY']))
             $summary = $event['SUMMARY']['value'];
 
+        $description = null;
+        if (isset($event['DESCRIPTION']))
+            $description = $event['DESCRIPTION']['value'];
+
         $location = null;
         if (isset($event['LOCATION']))
             $location = $event['LOCATION']['value'];
@@ -157,6 +161,7 @@ class Fastical {
                         'start' => $dtstart,
                         'end' => $dtend,
                         'summary' => $summary,
+                        'description' => $description,
                         'location' => $location,
                         'uid' => $uid
                 );
@@ -183,6 +188,7 @@ class Fastical {
                         'start' => $dtstart,
                         'end' => $dtend,
                         'summary' => $summary,
+                        'description' => $description,
                         'location' => $location,
                         'uid' => $uid
                 );
@@ -202,6 +208,7 @@ class Fastical {
                         'start' => $dtstart,
                         'end' => $dtend,
                         'summary' => $summary,
+                        'description' => $description,
                         'location' => $location,
                         'uid' => $uid
                 );
