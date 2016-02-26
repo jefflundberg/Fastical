@@ -11,13 +11,16 @@ In composer.json:
 ```
 {
     "require": {
-        "jefflundberg/Fastical": "dev-master"
+        "jefflundberg/fastical": "dev-master"
     }
 }
 ```
 
 ## Usage
-
+Include Composer’s autoloader
+```
+require 'vendor/autoload.php';
+```
 Get events from the next 7 days:
 ```
 $f = new Fastical('events.ics');

@@ -1,8 +1,8 @@
 {
-	"name": "jefflundberg/Fastical",
+	"name": "jefflundberg/fastical",
 	"description": "A fast PHP ical parser for vevents, based on msquare/Fastical",
 	"keywords": ["ical", "ics", "parse", "calendar", "vevents"],
-	"homepage": "https://github.com/jefflundberg/Fastical",
+	"homepage": "https://github.com/jefflundberg/fastical",
 	"type": "library",
 	"license": "GPL-2.0",
 	"authors": [
@@ -19,12 +19,11 @@
 		}
 	],
 	"require": {
-		"php": ">=5.5.0",
-		"simshaun/recurr": "*@dev"
+		"simshaun/recurr": "0.*"
 	},
 	"autoload": {
 		"psr-4": {
-			"Fastical\\": "/"
+			"Fastical\\": "src/"
 		}
 	}
 }
